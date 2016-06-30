@@ -647,7 +647,13 @@ namespace Microsoft.Xna.Framework.Graphics
             _d3dContext = _d3dDevice.ImmediateContext.QueryInterface<SharpDX.Direct3D11.DeviceContext>();
         }
 
-        internal void CreateSizeDependentResources(bool useFullscreenParameter = false)
+        internal void SetHardwareFullscreen()
+        {
+            // This force to switch to fullscreen mode when hardware mode enabled(working in WindowsDX mode).
+            _swapChain.SetFullscreenState(PresentationParameters.IsFullScreen, null);
+        }
+
+        internal void CreateSizeDependentResources()
         {
             _d3dContext.OutputMerger.SetTargets((SharpDX.Direct3D11.DepthStencilView)null,
                                                 (SharpDX.Direct3D11.RenderTargetView)null);
@@ -662,7 +668,7 @@ namespace Microsoft.Xna.Framework.Graphics
                 _depthStencilView.Dispose();
                 _depthStencilView = null;
             }
-
+            
             // Clear the current render targets.
             _currentDepthStencilView = null;
             Array.Clear(_currentRenderTargets, 0, _currentRenderTargets.Length);
@@ -716,17 +722,11 @@ namespace Microsoft.Xna.Framework.Graphics
             // If the swap chain already exists... update it.
             if (_swapChain != null)
             {
-                _swapChain.ResizeBuffers(2,
-                                            PresentationParameters.BackBufferWidth,
-                                            PresentationParameters.BackBufferHeight,
-                                            format,
-                                            SwapChainFlags.None);
-
-                // This force to switch to fullscreen mode when hardware mode enabled(working in WindowsDX mode).
-                if (useFullscreenParameter)
-                {
-                    _swapChain.SetFullscreenState(PresentationParameters.IsFullScreen, null);
-                }
+                    _swapChain.ResizeBuffers(2,
+                                                PresentationParameters.BackBufferWidth,
+                                                PresentationParameters.BackBufferHeight,
+                                                format,
+                                                SwapChainFlags.None);
 
                 // Update Vsync setting.
                 using (var dxgiDevice = _d3dDevice.QueryInterface<SharpDX.DXGI.Device1>())
@@ -763,7 +763,7 @@ namespace Microsoft.Xna.Framework.Graphics
                     Usage = SharpDX.DXGI.Usage.RenderTargetOutput,
                     BufferCount = 2,
                     SwapEffect = SharpDXHelper.ToSwapEffect(PresentationParameters.PresentationInterval),
-                    IsWindowed = useFullscreenParameter ? PresentationParameters.IsFullScreen : true
+                    IsWindowed = true
                 };
 
                 // Once the desired swap chain description is configured, it must be created on the same adapter as our D3D Device

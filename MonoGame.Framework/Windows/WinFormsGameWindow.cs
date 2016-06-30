@@ -218,11 +218,11 @@ namespace MonoGame.Framework
                 if (Game.graphicsDeviceManager.HardwareModeSwitch)
                 {
                     if (!_platform.IsActive && Game.GraphicsDevice.PresentationParameters.IsFullScreen)
-                   {
-                       Game.GraphicsDevice.PresentationParameters.IsFullScreen = true;
-                       Game.GraphicsDevice.CreateSizeDependentResources(true);
+                    {
+                        Game.GraphicsDevice.PresentationParameters.IsFullScreen = true;
+                        Game.GraphicsDevice.CreateSizeDependentResources();
                         Game.GraphicsDevice.ApplyRenderTargets(null);
-                   }
+                    }
                 }
           }
 #endif
@@ -364,14 +364,13 @@ namespace MonoGame.Framework
 
                 var newWidth = _form.ClientRectangle.Width;
                 var newHeight = _form.ClientRectangle.Height;
-
-                manager.PreferredBackBufferWidth = newWidth;
-                manager.PreferredBackBufferHeight = newHeight;
-
+                
                 if (manager.GraphicsDevice == null)
                     return;
 
-                manager.ApplyChanges();
+                manager.GraphicsDevice.PresentationParameters.BackBufferWidth = newWidth;
+                manager.GraphicsDevice.PresentationParameters.BackBufferHeight = newHeight;
+                manager.GraphicsDevice.OnPresentationChanged();
             }
 
             // Set the new view state which will trigger the 
